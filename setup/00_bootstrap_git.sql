@@ -9,7 +9,7 @@ USE ROLE ACCOUNTADMIN;
 
 CREATE API INTEGRATION IF NOT EXISTS RLI_GITHUB_API
   API_PROVIDER         = git_https_api
-  API_ALLOWED_PREFIXES = ('https://github.com/<github-account>')
+  API_ALLOWED_PREFIXES = ('https://github.com/dinn16MU')
   ENABLED              = TRUE
   COMMENT              = 'Read-only access to the public take-home repo';
 
@@ -25,7 +25,7 @@ CREATE SCHEMA IF NOT EXISTS RLI_PLATFORM.INTEGRATIONS;
 
 CREATE GIT REPOSITORY IF NOT EXISTS RLI_PLATFORM.INTEGRATIONS.RLI_TAKEHOME_REPO
   API_INTEGRATION = RLI_GITHUB_API
-  ORIGIN          = 'https://github.com/<github-account>/<repo-name>.git'
+  ORIGIN          = 'https://github.com/dinn16MU/rli_take_home_assignment_submission_dinni_b.git'
   COMMENT         = 'Clone of the take-home repo: setup scripts, data files, dbt project';
 
 -- Pull the latest commit (safe to re-run any time)
