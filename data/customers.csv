@@ -1,0 +1,353 @@
+customer_id,customer_name,state,industry
+1,Hughes Group,TX,Transportation
+2,"Ware, Cruz and Turner",NY,Construction
+3,Watson Group,FL,Construction
+4,White Group,TX,Healthcare
+5,"Jones, Miller and Snyder",TX,Healthcare
+6,Thomas Inc,OH,Transportation
+7,Sandoval Group,IL,Transportation
+8,"Kane, Torres and Parker",FL,Construction
+9,Cooper-Howard,IL,Healthcare
+10,Schwartz-Velasquez,FL,Healthcare
+11,Petty Inc,OH,Construction
+12,"Pham, Stewart and Murphy",WI,Healthcare
+13,"Miranda, Jacobson and Ramirez",NY,Transportation
+14,Mcdowell and Sons,CA,Manufacturing
+15,Murray Ltd,GA,Retail
+16,Taylor LLC,CA,Construction
+17,"Harris, Ochoa and Peters",GA,Transportation
+18,"Sullivan, Perkins and Dean",TX,Manufacturing
+19,Dixon-Anderson,TX,Retail
+20,Walter-Thomas,GA,Healthcare
+21,"Floyd, Walker and Rasmussen",NY,Transportation
+22,"Townsend, Miller and Smith",WI,Healthcare
+23,Coffey-Reynolds,TX,Manufacturing
+24,Holt Ltd,TX,Healthcare
+25,Best Ltd,NY,Healthcare
+26,"Osborne, Morris and Hayden",GA,Healthcare
+27,Fuentes PLC,FL,Transportation
+28,Hayes-Perkins,IL,Construction
+29,Simpson Group,NY,Transportation
+30,Robbins and Sons,FL,Transportation
+31,Rasmussen Ltd,OH,Retail
+32,"Turner, Vaughan and Miller",WI,Retail
+33,Keller-Green,CA,Retail
+34,"Cook, Tanner and Patton",GA,Construction
+35,"Hill, Berry and Brock",NY,Transportation
+36,Benson LLC,CA,Healthcare
+37,Montoya-Mccoy,FL,Construction
+38,"Stewart, Johnson and Bryant",WI,Manufacturing
+39,Foster Inc,NY,Healthcare
+40,Mclean-Lewis,FL,Retail
+41,"Bird, Hernandez and Johnson",IL,Construction
+42,Hanna LLC,IL,Retail
+43,"Jones, Carey and Herman",OH,Retail
+44,Doyle-Murray,TX,Construction
+45,"Mcgrath, Baker and Gates",GA,Construction
+46,Campbell-Brooks,WI,Manufacturing
+47,Adkins-Ferrell,WI,Construction
+48,Lloyd LLC,NY,Construction
+49,Ross-Nelson,FL,Healthcare
+50,Lewis-Kim,NY,Healthcare
+51,Dennis-Davis,OH,Healthcare
+52,"Byrd, Wu and Santos",OH,Retail
+53,Parker-Marquez,FL,Construction
+54,Rodriguez-Gilbert,WI,Transportation
+55,Harris Group,IL,Transportation
+56,Beltran-Jenkins,CA,Construction
+57,Ortiz Group,OH,Healthcare
+58,Murray-Hood,TX,Manufacturing
+59,Moran Group,OH,Healthcare
+60,Fisher PLC,WI,Healthcare
+61,Weeks LLC,NY,Healthcare
+62,Dudley PLC,IL,Transportation
+63,"Jones, Schmidt and Coffey",NY,Retail
+64,"Huff, Smith and Luna",TX,Retail
+65,Williams Ltd,OH,Construction
+66,Mckay-Smith,WI,Transportation
+67,Kerr-Bradley,NY,Healthcare
+68,Stevens-Morales,CA,Healthcare
+69,"Pittman, Ferguson and Clark",TX,Retail
+70,"Williams, Lindsey and Banks",FL,Construction
+71,Vazquez PLC,GA,Construction
+72,"Allen, Miller and Frey",IL,Healthcare
+73,Perez-Willis,GA,Manufacturing
+74,Newman Inc,IL,Transportation
+75,Lewis PLC,GA,Retail
+76,Brown PLC,FL,Transportation
+77,Perry Inc,FL,Healthcare
+78,Johnson Inc,TX,Transportation
+79,Barnett-Vargas,WI,Transportation
+80,Nelson and Sons,CA,Construction
+81,Richardson and Sons,WI,Healthcare
+82,Hernandez-Mack,CA,Retail
+83,"Miller, Wallace and Jackson",OH,Construction
+84,Collins and Sons,FL,Retail
+85,Hunt and Sons,OH,Retail
+86,"Morgan, Cox and Cain",WI,Healthcare
+87,"Cervantes, Silva and Ramos",WI,Transportation
+88,Brown and Sons,FL,Construction
+89,Gilmore Inc,TX,Retail
+90,Jordan and Sons,IL,Healthcare
+91,Taylor-Winters,FL,Healthcare
+92,"Edwards, Medina and Parrish",FL,Transportation
+93,Nash-Boyd,TX,Transportation
+94,Wang-Williams,FL,Transportation
+95,"Walter, Davis and Pena",IL,Retail
+96,"Robinson, Wood and Stephens",TX,Healthcare
+97,Johnson LLC,FL,Retail
+98,Love Group,WI,Construction
+99,Castillo-Williams,CA,Healthcare
+100,"Reed, Holmes and Hart",WI,Construction
+101,"Morse, Chung and Johnston",WI,Manufacturing
+102,"Vaughn, Fox and Perry",FL,Transportation
+103,"Poole, Johnson and Lee",TX,Manufacturing
+104,"Wheeler, Holmes and Brewer",GA,Manufacturing
+105,"Schneider, Morton and Joseph",OH,Manufacturing
+106,Bullock Ltd,IL,Transportation
+107,Davis-Manning,IL,Manufacturing
+108,Newman Inc,GA,Transportation
+109,"Gibbs, Davis and Stewart",FL,Construction
+110,Ewing-Mcknight,FL,Healthcare
+111,Snyder PLC,WI,Construction
+112,Rodriguez Ltd,OH,Construction
+113,"Hardy, Ballard and Matthews",NY,Manufacturing
+114,Murray LLC,FL,Transportation
+115,"Duran, Whitehead and Brown",WI,Healthcare
+116,Wilson-Park,TX,Transportation
+117,Serrano Ltd,IL,Transportation
+118,Wise and Sons,FL,Construction
+119,"Glass, Davis and Yang",OH,Manufacturing
+120,"French, Cox and Sherman",WI,Construction
+121,Mitchell-Martin,OH,Transportation
+122,Martinez PLC,CA,Manufacturing
+123,Johnson-Barnes,IL,Manufacturing
+124,James-Ross,NY,Manufacturing
+125,Tanner-Harris,NY,Manufacturing
+126,"Martinez, Gallagher and Lopez",WI,Construction
+127,Green LLC,FL,Retail
+128,Davis Ltd,FL,Transportation
+129,Williamson-Williams,IL,Retail
+130,Tapia-Jackson,IL,Transportation
+131,Walker and Sons,WI,Healthcare
+132,Soto PLC,CA,Transportation
+133,Fox PLC,TX,Construction
+134,Haney-Shaw,TX,Healthcare
+135,"Schmidt, Guzman and Taylor",TX,Construction
+136,Johnson-Norris,OH,Transportation
+137,Sandoval-Roberts,FL,Healthcare
+138,Martinez-Williams,IL,Healthcare
+139,Sullivan-Rose,TX,Manufacturing
+140,Porter Group,GA,Retail
+141,"Barnes, Carr and Walker",FL,Retail
+142,Cruz-Lee,FL,Retail
+143,Dennis PLC,OH,Construction
+144,Ward-Carpenter,NY,Manufacturing
+145,Gilbert-Pruitt,GA,Transportation
+146,Sanders-Mccann,IL,Manufacturing
+147,Myers Ltd,TX,Transportation
+148,Dyer and Sons,FL,Healthcare
+149,"Owens, Brady and Velez",NY,Construction
+150,"Price, Powell and Adams",GA,Transportation
+151,"Sanders, Taylor and Lee",FL,Retail
+152,"Little, Patterson and Evans",NY,Construction
+153,"Dunn, Reyes and Brown",WI,Healthcare
+154,Neal-Whitehead,NY,Healthcare
+155,Wright PLC,IL,Healthcare
+156,Hoffman-Gibson,NY,Transportation
+157,Berger-Diaz,CA,Retail
+158,"White, Harrington and Kelly",TX,Transportation
+159,Williams-Carlson,CA,Retail
+160,Williams-Johnson,NY,Healthcare
+161,Peters-Robinson,FL,Retail
+162,Bentley PLC,FL,Retail
+163,Allen PLC,WI,Retail
+164,"Obrien, Preston and Powell",IL,Transportation
+165,Herrera and Sons,OH,Retail
+166,"Oliver, Wiggins and Cardenas",IL,Transportation
+167,Stevens Group,GA,Construction
+168,Parker Inc,NY,Construction
+169,"Cortez, Atkinson and Aguirre",WI,Healthcare
+170,Snyder-Malone,OH,Healthcare
+171,Clay-Rosales,IL,Transportation
+172,Charles-Moody,TX,Construction
+173,Mckinney-Delacruz,IL,Retail
+174,Tyler Group,CA,Manufacturing
+175,"Austin, Young and Cruz",CA,Transportation
+176,Pena LLC,NY,Retail
+177,Webb and Sons,IL,Retail
+178,"Hays, Sanders and Suarez",FL,Construction
+179,Leach-Allen,TX,Retail
+180,Lewis-Bentley,OH,Healthcare
+181,"Martin, Mitchell and Davidson",CA,Construction
+182,Cooper and Sons,CA,Construction
+183,Goodman-Tran,OH,Transportation
+184,Lawrence LLC,CA,Retail
+185,White LLC,OH,Construction
+186,"Thomas, Wilson and Cohen",NY,Construction
+187,Burgess Group,TX,Manufacturing
+188,Miller-Mills,IL,Manufacturing
+189,"Odonnell, Orozco and Powell",FL,Construction
+190,Meyer PLC,WI,Retail
+191,Harmon-Smith,NY,Construction
+192,Hill-Johnson,FL,Transportation
+193,"Warner, Bowers and Owens",FL,Manufacturing
+194,Davis-Foster,GA,Retail
+195,Bradley-Mcdaniel,TX,Retail
+196,"Ward, Beck and Mitchell",GA,Healthcare
+197,"Taylor, Bishop and Salazar",OH,Healthcare
+198,Hernandez-Ross,GA,Transportation
+199,Landry LLC,TX,Retail
+200,Green-Kim,CA,Healthcare
+201,"Gregory, Taylor and Cummings",NY,Transportation
+202,Lopez and Sons,TX,Healthcare
+203,"Gonzalez, Roberts and Rhodes",OH,Retail
+204,Everett-Chen,GA,Manufacturing
+205,Johnson Ltd,TX,Manufacturing
+206,Huffman-Kennedy,FL,Retail
+207,Walters PLC,IL,Manufacturing
+208,Poole-Harris,IL,Healthcare
+209,"Savage, Turner and Davis",FL,Retail
+210,"Rivera, Joseph and Mejia",OH,Transportation
+211,"Anthony, Cardenas and Moreno",GA,Healthcare
+212,Brown-Washington,GA,Transportation
+213,Shannon-Miller,NY,Healthcare
+214,"Copeland, Allen and Andersen",NY,Manufacturing
+215,Lester-Jones,GA,Manufacturing
+216,Cox Group,NY,Healthcare
+217,Coffey Inc,CA,Construction
+218,Cruz LLC,OH,Manufacturing
+219,Arroyo-Brown,CA,Healthcare
+220,Cook Ltd,NY,Manufacturing
+221,"Frazier, Phillips and Washington",IL,Retail
+222,Owen-Hernandez,NY,Construction
+223,"Williams, Pineda and Garcia",OH,Healthcare
+224,Miller-Warren,GA,Manufacturing
+225,"Wong, Bowers and Phillips",WI,Manufacturing
+226,"Lee, Morrison and Baker",FL,Healthcare
+227,"Jones, Proctor and Turner",WI,Construction
+228,Gardner LLC,TX,Retail
+229,Buchanan-Ryan,GA,Transportation
+230,"Scott, Klein and May",FL,Retail
+231,"Williams, Bradford and Gardner",FL,Construction
+232,Rios PLC,CA,Transportation
+233,"Armstrong, Gutierrez and Perez",IL,Construction
+234,"Moreno, Smith and Murray",WI,Healthcare
+235,"Knapp, Garcia and Pierce",TX,Manufacturing
+236,Cortez-Mcgee,OH,Healthcare
+237,Kelly Group,FL,Manufacturing
+238,"Scott, White and Woodard",WI,Manufacturing
+239,Vasquez LLC,FL,Construction
+240,"Evans, Adams and Ramirez",IL,Transportation
+241,"Wallace, Jordan and Curry",OH,Construction
+242,"Fernandez, Ford and Brown",CA,Healthcare
+243,Anderson-Garcia,WI,Transportation
+244,Greene LLC,FL,Transportation
+245,"Sherman, Gordon and Salazar",WI,Construction
+246,"Banks, Shepherd and Harris",WI,Healthcare
+247,Clark-Miller,GA,Manufacturing
+248,Gibson-Schmidt,OH,Healthcare
+249,"Bell, King and Moore",WI,Construction
+250,Roberts-Kim,WI,Manufacturing
+251,Johnson-Smith,NY,Construction
+252,Perry Inc,NY,Healthcare
+253,Williams Group,WI,Construction
+254,Johnson PLC,NY,Manufacturing
+255,Garcia PLC,TX,Retail
+256,Carroll-Perez,FL,Retail
+257,"Huber, Torres and Brown",GA,Retail
+258,"Norton, Meyer and Mccormick",TX,Construction
+259,Moore PLC,CA,Construction
+260,Bradley-Williams,OH,Construction
+261,Anthony-May,FL,Transportation
+262,"Holmes, Hill and Mitchell",OH,Manufacturing
+263,Fox-Curtis,GA,Healthcare
+264,Gray LLC,WI,Manufacturing
+265,Caldwell-Patterson,IL,Construction
+266,Butler-Tucker,OH,Manufacturing
+267,Jenkins-Robbins,IL,Healthcare
+268,Rodriguez PLC,OH,Manufacturing
+269,Santiago Group,IL,Retail
+270,"Bowman, Perez and Medina",NY,Manufacturing
+271,Roy-Kerr,OH,Healthcare
+272,Nelson-King,FL,Manufacturing
+273,Mitchell Inc,FL,Retail
+274,Williams LLC,OH,Manufacturing
+275,Zuniga-Brown,IL,Manufacturing
+276,"Carter, Ortega and Snyder",GA,Manufacturing
+277,Decker and Sons,CA,Manufacturing
+278,Payne Ltd,CA,Healthcare
+279,"Knight, Campbell and Stanley",IL,Manufacturing
+280,"Hill, Hernandez and Armstrong",IL,Transportation
+281,Fleming-Thomas,OH,Construction
+282,"Pham, Rich and Vaughn",WI,Construction
+283,"Boyd, Crosby and Gomez",IL,Retail
+284,"Chambers, Thompson and Hill",OH,Retail
+285,Mckinney and Sons,FL,Manufacturing
+286,Khan-Smith,GA,Retail
+287,"Cox, Hanson and Schneider",OH,Retail
+288,"Robinson, Harris and Mack",OH,Retail
+289,"Williams, Jackson and Williams",TX,Manufacturing
+290,Lewis-Frank,IL,Healthcare
+291,"Horne, Mitchell and Tucker",IL,Retail
+292,Martin-Kramer,FL,Transportation
+293,Taylor-Cabrera,IL,Transportation
+294,"Erickson, Jones and Woodard",FL,Construction
+295,Sexton Group,IL,Healthcare
+296,King-Johnson,CA,Construction
+297,Hicks and Sons,CA,Manufacturing
+298,Hammond Inc,TX,Healthcare
+299,Morgan-Fisher,FL,Manufacturing
+300,"Reid, Finley and Hunter",NY,Retail
+301,Esparza Inc,CA,Healthcare
+302,Anderson-Wells,TX,Construction
+303,Hughes-Smith,NY,Transportation
+304,Wood-Rojas,IL,Retail
+305,Gentry PLC,OH,Manufacturing
+306,Camacho LLC,FL,Transportation
+307,Reyes-Moody,FL,Transportation
+308,Ryan-Perry,NY,Healthcare
+309,"Gonzalez, Rice and Smith",TX,Healthcare
+310,Hunter-Drake,IL,Retail
+311,"Kim, Fowler and Tran",OH,Retail
+312,Hess-Gomez,TX,Healthcare
+313,Fernandez-Nielsen,GA,Transportation
+314,Sullivan-Clark,OH,Manufacturing
+315,Stout LLC,TX,Manufacturing
+316,"Clark, Holland and Allen",GA,Manufacturing
+317,Cox and Sons,CA,Manufacturing
+318,Thompson-Crawford,CA,Healthcare
+319,Johnston and Sons,NY,Healthcare
+320,Andrews-Elliott,WI,Manufacturing
+321,Wilson-Jackson,OH,Healthcare
+322,Oconnor Inc,NY,Retail
+323,"Jackson, Allen and Walker",FL,Transportation
+324,Howard-Gordon,NY,Manufacturing
+325,Brewer-Williams,FL,Manufacturing
+326,Mcdonald-Smith,OH,Retail
+327,"May, Johnson and Allen",IL,Manufacturing
+328,Cruz-Chambers,GA,Construction
+329,"Jackson, Velasquez and Miller",WI,Construction
+330,Franklin LLC,GA,Retail
+331,Strickland-Jensen,GA,Retail
+332,"Meyers, Anderson and Mora",NY,Healthcare
+333,Yang-Rodriguez,IL,Healthcare
+334,Hill Group,FL,Transportation
+335,Garcia LLC,FL,Manufacturing
+336,"Williams, Johnston and Pearson",WI,Healthcare
+337,Smith-Fowler,FL,Manufacturing
+338,Richardson LLC,WI,Manufacturing
+339,Carr LLC,IL,Transportation
+340,"Baker, Gonzalez and Young",NY,Construction
+341,"Johnson, Parker and Alvarado",OH,Construction
+342,Weaver-Lopez,NY,Healthcare
+343,Wells Inc,GA,Manufacturing
+344,Dougherty Inc,GA,Manufacturing
+345,David-Davis,GA,Retail
+346,Hall-Santana,WI,Retail
+347,Brown-Duncan,NY,Retail
+348,"Gutierrez, Brown and Kennedy",FL,Transportation
+349,Martinez and Sons,FL,Retail
+350,Brooks and Sons,TX,Healthcare
+351,"Allen, Perkins and Lopez",CA,Construction
+352,Jones Inc,FL,Manufacturing

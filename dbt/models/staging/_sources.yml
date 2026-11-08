@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: insurance
+    description: Raw source files loaded by the load_raw macro (all columns VARCHAR).
+    database: "{{ 'PROD_RAW' if target.name == 'prod' else 'DEV_RAW' }}"
+    schema: INSURANCE
+    tables:
+      - name: customers
+      - name: policies
+      - name: claims
+      - name: payments
+      - name: endorsements
+        description: One JSON record per row in RAW_DATA.

@@ -1,0 +1,24 @@
+name: insurance_analytics
+version: '1.0.0'
+config-version: 2
+profile: insurance_analytics
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+analysis-paths: ["analyses"]
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  insurance_analytics:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: table
+    dq:
+      +schema: dq
+      +materialized: table
+    semantic:
+      +schema: semantic

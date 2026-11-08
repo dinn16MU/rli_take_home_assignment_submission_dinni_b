@@ -1,0 +1,24 @@
+insurance_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: "{{ env_var('SNOWFLAKE_USER') }}"
+      private_key_path: C:\Users\Dinni\.ssh\snowflake_dinni.p8
+      role: DEVELOPER
+      warehouse: RLI_DEV_WH
+      database: DEV_ANALYTICS
+      schema: STAGING
+      threads: 4
+
+    prod:
+      type: snowflake
+      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
+      user: DBT_SVC
+      private_key_path: C:\Users\Dinni\.ssh\dbt_svc.p8
+      role: SERVICE_ROLE
+      warehouse: RLI_DEV_WH
+      database: PROD_ANALYTICS
+      schema: STAGING
+      threads: 4

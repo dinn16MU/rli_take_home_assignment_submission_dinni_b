@@ -1,0 +1,39 @@
+version: 2
+
+models:
+  - name: dim_customer
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+
+  - name: dim_policy
+    columns:
+      - name: policy_id
+        data_tests: [unique, not_null]
+      - name: customer_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_customer')
+                field: customer_id
+
+  - name: fct_claims
+    columns:
+      - name: claim_id
+        data_tests: [unique, not_null]
+      - name: policy_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_policy')
+                field: policy_id
+
+  - name: fct_payments
+    columns:
+      - name: payment_id
+        data_tests: [unique, not_null]
+
+  - name: fct_policy_performance
+    columns:
+      - name: policy_id
+        data_tests: [unique, not_null]

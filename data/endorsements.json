@@ -1,0 +1,352 @@
+[
+  {
+    "endorsement_id": 1,
+    "policy_id": 403,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-05-10",
+    "endorsement_amount": 1964.57
+  },
+  {
+    "endorsement_id": 2,
+    "policy_id": 466,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-05-16",
+    "endorsement_amount": 3486.72
+  },
+  {
+    "endorsement_id": 3,
+    "policy_id": 991,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-08-16",
+    "endorsement_amount": 3430.76
+  },
+  {
+    "endorsement_id": 4,
+    "policy_id": 961,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2025-12-03",
+    "endorsement_amount": -3972.56
+  },
+  {
+    "endorsement_id": 5,
+    "policy_id": 230,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2026-03-02",
+    "endorsement_amount": 3254.57
+  },
+  {
+    "endorsement_id": 6,
+    "policy_id": 143,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-11-24",
+    "endorsement_amount": 4935.4
+  },
+  {
+    "endorsement_id": 7,
+    "policy_id": 883,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2026-01-30",
+    "endorsement_amount": 2242.53
+  },
+  {
+    "endorsement_id": 8,
+    "policy_id": 232,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-12-22",
+    "endorsement_amount": -4119.83
+  },
+  {
+    "endorsement_id": 9,
+    "policy_id": 742,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-03-21",
+    "endorsement_amount": 3161.48
+  },
+  {
+    "endorsement_id": 10,
+    "policy_id": 551,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-12-01",
+    "endorsement_amount": 4341.1
+  },
+  {
+    "endorsement_id": 11,
+    "policy_id": 889,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2026-02-15",
+    "endorsement_amount": -2403.12
+  },
+  {
+    "endorsement_id": 12,
+    "policy_id": 804,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-08-06",
+    "endorsement_amount": -3891.96
+  },
+  {
+    "endorsement_id": 13,
+    "policy_id": 970,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-05-08",
+    "endorsement_amount": -4249.58
+  },
+  {
+    "endorsement_id": 14,
+    "policy_id": 338,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2025-09-13",
+    "endorsement_amount": 1127.51
+  },
+  {
+    "endorsement_id": 15,
+    "policy_id": 832,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-07-05",
+    "endorsement_amount": -2300.88
+  },
+  {
+    "endorsement_id": 16,
+    "policy_id": 175,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2026-03-25",
+    "endorsement_amount": 834.53
+  },
+  {
+    "endorsement_id": 17,
+    "policy_id": 123,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2026-05-04",
+    "endorsement_amount": -1806.67
+  },
+  {
+    "endorsement_id": 18,
+    "policy_id": 152,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2025-06-30",
+    "endorsement_amount": 3877.98
+  },
+  {
+    "endorsement_id": 19,
+    "policy_id": 990,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-03-12",
+    "endorsement_amount": 1369.04
+  },
+  {
+    "endorsement_id": 20,
+    "policy_id": 685,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-11-04",
+    "endorsement_amount": 217.64
+  },
+  {
+    "endorsement_id": 21,
+    "policy_id": 247,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2026-03-23",
+    "endorsement_amount": -220.73
+  },
+  {
+    "endorsement_id": 22,
+    "policy_id": 502,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-05-21",
+    "endorsement_amount": -1780.89
+  },
+  {
+    "endorsement_id": 23,
+    "policy_id": 749,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-02-09",
+    "endorsement_amount": -2741.69
+  },
+  {
+    "endorsement_id": 24,
+    "policy_id": 271,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-07-09",
+    "endorsement_amount": 2113.81
+  },
+  {
+    "endorsement_id": 25,
+    "policy_id": 362,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2025-07-25",
+    "endorsement_amount": 3355.42
+  },
+  {
+    "endorsement_id": 26,
+    "policy_id": 249,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2026-01-16",
+    "endorsement_amount": 1471.34
+  },
+  {
+    "endorsement_id": 27,
+    "policy_id": 877,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2026-03-26",
+    "endorsement_amount": 1949.65
+  },
+  {
+    "endorsement_id": 28,
+    "policy_id": 77,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-08-01",
+    "endorsement_amount": -4397.33
+  },
+  {
+    "endorsement_id": 29,
+    "policy_id": 14,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2025-12-09",
+    "endorsement_amount": -2838.65
+  },
+  {
+    "endorsement_id": 30,
+    "policy_id": 839,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-10-27",
+    "endorsement_amount": -3120.83
+  },
+  {
+    "endorsement_id": 31,
+    "policy_id": 108,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-07-31",
+    "endorsement_amount": -2913.39
+  },
+  {
+    "endorsement_id": 32,
+    "policy_id": 605,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2026-05-12",
+    "endorsement_amount": 139.27
+  },
+  {
+    "endorsement_id": 33,
+    "policy_id": 321,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-02-11",
+    "endorsement_amount": 2085.12
+  },
+  {
+    "endorsement_id": 34,
+    "policy_id": 672,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-06-24",
+    "endorsement_amount": 3478.07
+  },
+  {
+    "endorsement_id": 35,
+    "policy_id": 109,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-10-03",
+    "endorsement_amount": -2812.15
+  },
+  {
+    "endorsement_id": 36,
+    "policy_id": 373,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-09-24",
+    "endorsement_amount": 4750.65
+  },
+  {
+    "endorsement_id": 37,
+    "policy_id": 889,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2025-08-21",
+    "endorsement_amount": 134.64
+  },
+  {
+    "endorsement_id": 38,
+    "policy_id": 799,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-07-27",
+    "endorsement_amount": -3120.47
+  },
+  {
+    "endorsement_id": 39,
+    "policy_id": 285,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-09-04",
+    "endorsement_amount": -3358.04
+  },
+  {
+    "endorsement_id": 40,
+    "policy_id": 315,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2025-06-23",
+    "endorsement_amount": 1483.83
+  },
+  {
+    "endorsement_id": 41,
+    "policy_id": 151,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-11-05",
+    "endorsement_amount": 3761.96
+  },
+  {
+    "endorsement_id": 42,
+    "policy_id": 763,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2025-09-10",
+    "endorsement_amount": -2594.38
+  },
+  {
+    "endorsement_id": 43,
+    "policy_id": 916,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-01-05",
+    "endorsement_amount": -3129.7
+  },
+  {
+    "endorsement_id": 44,
+    "policy_id": 30,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-05-22",
+    "endorsement_amount": 1618.86
+  },
+  {
+    "endorsement_id": 45,
+    "policy_id": 464,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2025-07-17",
+    "endorsement_amount": -2344.21
+  },
+  {
+    "endorsement_id": 46,
+    "policy_id": 950,
+    "endorsement_type": "Cancellation",
+    "endorsement_date": "2026-05-18",
+    "endorsement_amount": -4159.33
+  },
+  {
+    "endorsement_id": 47,
+    "policy_id": 442,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2026-01-18",
+    "endorsement_amount": -3493.8
+  },
+  {
+    "endorsement_id": 48,
+    "policy_id": 515,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-02-15",
+    "endorsement_amount": 79.27
+  },
+  {
+    "endorsement_id": 49,
+    "policy_id": 55,
+    "endorsement_type": "Coverage Reduction",
+    "endorsement_date": "2026-04-25",
+    "endorsement_amount": -2274.11
+  },
+  {
+    "endorsement_id": 50,
+    "policy_id": 101,
+    "endorsement_type": "Coverage Increase",
+    "endorsement_date": "2026-02-23",
+    "endorsement_amount": 1486.22
+  }
+]
