@@ -168,7 +168,7 @@ GRANT READ, WRITE ON STAGE DEV_RAW.INSURANCE.RAW_STAGE  TO ROLE DEVELOPER;
 USE ROLE SYSADMIN;
 SHOW FILE FORMATS IN SCHEMA PROD_RAW.INSURANCE;               -- FF_CSV, FF_JSON
 SHOW STAGES       IN SCHEMA PROD_RAW.INSURANCE;               -- RAW_STAGE
-SHOW TABLES       IN SCHEMA PROD_RAW.INSURANCE;               -- 5 tables, 0 rows
+SHOW TABLES       IN SCHEMA PROD_RAW.INSURANCE;               -- 5 tables (empty until the first load)
 DESCRIBE TABLE PROD_RAW.INSURANCE.CLAIMS;                     -- VARCHAR columns + 3 lineage columns
 SHOW GRANTS ON STAGE PROD_RAW.INSURANCE.RAW_STAGE;            -- SERVICE_ROLE: READ, WRITE
 SHOW GRANTS TO ROLE DEVELOPER;                                -- includes DEV stage + file formats

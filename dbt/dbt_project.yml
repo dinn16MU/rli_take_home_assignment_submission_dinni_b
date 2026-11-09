@@ -5,8 +5,6 @@ profile: insurance_analytics
 
 model-paths: ["models"]
 macro-paths: ["macros"]
-test-paths: ["tests"]
-analysis-paths: ["analyses"]
 # dbt_packages is committed (Snowflake has no internet for dbt deps), so dbt clean must not delete it
 clean-targets: ["target"]
 
