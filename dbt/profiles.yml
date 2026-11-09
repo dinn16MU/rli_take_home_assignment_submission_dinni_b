@@ -1,11 +1,13 @@
+# Profile used when dbt runs inside Snowflake (Workspaces / dbt project object).
+# Snowflake runs dbt as the current session, so account, user and credentials
+# are not used here. Local runs use ~/.dbt/profiles.yml instead (key-pair auth).
 insurance_analytics:
   target: dev
   outputs:
     dev:
       type: snowflake
-      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-      user: "{{ env_var('SNOWFLAKE_USER') }}"
-      private_key_path: C:\Users\Dinni\.ssh\snowflake_dinni.p8
+      account: not_used
+      user: not_used
       role: DEVELOPER
       warehouse: RLI_DEV_WH
       database: DEV_ANALYTICS
@@ -14,9 +16,8 @@ insurance_analytics:
 
     prod:
       type: snowflake
-      account: "{{ env_var('SNOWFLAKE_ACCOUNT') }}"
-      user: DBT_SVC
-      private_key_path: C:\Users\Dinni\.ssh\dbt_svc.p8
+      account: not_used
+      user: not_used
       role: SERVICE_ROLE
       warehouse: RLI_DEV_WH
       database: PROD_ANALYTICS
