@@ -23,7 +23,7 @@ Coming into this assignment, I wanted to use the technologies that match the rol
 
 ## 2. How to run it
 
-Everything runs in Snowsight with a user that has **ACCOUNTADMIN** (a trial account works). Every setup script can be re-run safely.
+Everything runs in Snowsight with a user that has **ACCOUNTADMIN** (a trial account works). Scripts `01` to `07` can be re-run safely.
 
 **Step 1: Open the repo in a Snowflake workspace.** First, allow Snowflake to read the public repo:
 
