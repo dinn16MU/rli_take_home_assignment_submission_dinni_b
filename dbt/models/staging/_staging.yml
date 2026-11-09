@@ -13,14 +13,12 @@ models:
       - name: customer_id
         data_tests:
           - relationships:
-              arguments:
-                to: ref('stg_customers')
-                field: customer_id
+              to: ref('stg_customers')
+              field: customer_id
       - name: policy_type
         data_tests:
           - accepted_values:
-              arguments:
-                values: ['Auto', 'Property', 'Liability', 'Marine', 'Workers Comp']
+              values: ['Auto', 'Property', 'Liability', 'Marine', 'Workers Comp']
 
   - name: stg_claims
     columns:
@@ -29,14 +27,12 @@ models:
       - name: policy_id
         data_tests:
           - relationships:
-              arguments:
-                to: ref('stg_policies')
-                field: policy_id
+              to: ref('stg_policies')
+              field: policy_id
       - name: claim_status
         data_tests:
           - accepted_values:
-              arguments:
-                values: ['Open', 'Pending', 'Closed']
+              values: ['Open', 'Pending', 'Closed']
 
   - name: stg_payments
     columns:
@@ -45,9 +41,8 @@ models:
       - name: policy_id
         data_tests:
           - relationships:
-              arguments:
-                to: ref('stg_policies')
-                field: policy_id
+              to: ref('stg_policies')
+              field: policy_id
 
   - name: stg_endorsements
     columns:
@@ -56,5 +51,4 @@ models:
       - name: endorsement_type
         data_tests:
           - accepted_values:
-              arguments:
-                values: ['Coverage Increase', 'Coverage Reduction', 'Cancellation']
+              values: ['Coverage Increase', 'Coverage Reduction', 'Cancellation']
