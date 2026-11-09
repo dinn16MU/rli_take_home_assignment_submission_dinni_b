@@ -18,3 +18,4 @@ logs/
 # OS / editor noise
 .DS_Store
 Thumbs.db
+dbt/package-lock.yml
