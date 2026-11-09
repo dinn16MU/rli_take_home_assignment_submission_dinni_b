@@ -5,7 +5,6 @@ __pycache__/
 
 # dbt build artifacts
 dbt/target/
-dbt/dbt_packages/
 dbt/logs/
 dbt/.user.yml
 logs/
