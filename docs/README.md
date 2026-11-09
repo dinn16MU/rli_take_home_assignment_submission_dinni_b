@@ -62,6 +62,8 @@ Then go to **Projects → Workspaces → Create Workspace → From Git repositor
 **Step 6: Publish the CoWork agent.** After the first run succeeds, run `setup/08_cowork_agent.sql`. Then open CoWork, choose **Policy Performance Analyst** and try one of its sample questions.
 
 > `08` turns on cross-region inference for US regions (`CORTEX_ENABLED_CROSS_REGION = 'AWS_US'`), so Cortex can use a model hosted in another US region if it isn't available locally. This is an account-level setting. Skip that line if your account already has the models it needs.
+>
+> The agent needs an account with Cortex and CoWork enabled, which isn't available on every trial account. Everything else runs without it, and step 7 checks the same numbers directly against the semantic view. The CoWork answers are shown in [Results](#6-results).
 
 **Step 7: Check the results.**
 
