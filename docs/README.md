@@ -153,33 +153,35 @@ My rule is simple: if a row can't be trusted at all, quarantine it; if it's unus
 
 ## 6. Results
 
-<!-- Add CoWork screenshots to docs/images/ and update the file names below -->
+These are the four business questions from the assignment, asked word for word to the **Policy Performance Analyst** agent in CoWork. Every answer comes from the semantic view, so the numbers match the marts.
 
-**1. Which policy types have the highest loss ratios?**
+### 1. Which policy types are generating the highest loss ratios?
 
-| Policy type | Loss ratio | Written premium | Policies |
-|---|---|---|---|
-| Liability | 86.8% | $2.73M | 224 |
-| Auto | 78.7% | $2.36M | 194 |
-| Marine | 77.6% | $2.58M | 200 |
-| Property | 73.4% | $2.41M | 193 |
-| Workers Comp | 63.4% | $2.31M | 193 |
+Liability is highest at 86.8%, followed by Auto (78.7%) and Marine (77.6%). Workers Comp is lowest at 63.4%. The agent states the loss ratio rules it applied with its answer.
 
 ![Loss ratio by policy type](images/q1_loss_ratio_by_policy_type.png)
 
-**2. How do claims and payments trend across policy segments?**
+### 2. How do claims and payments trend across different policy segments?
 
-![Claims and premium collected by policy type](images/q2_claims_and_payments_trend.png)
+Premium collected is steady quarter to quarter in every policy type, while claims swing much more, because each segment only has a handful of claims per month.
 
-**3. Which customers or policy groups may represent elevated financial risk?**
+![Premium collected by policy type](images/q2_premium_collected_trend.png)
 
-![Elevated risk](images/q3_elevated_risk.png)
+![Claims by policy type, with the monthly detail](images/q2_claims_trend.png)
 
-**4. How can leadership monitor profitability and claims exposure over time?**
+> The data runs from May 2024 to May 2026, so 2026 Q2 is a partial quarter. The drop at the end of both charts reflects incomplete data, not a real decline.
 
-![Profitability and exposure over time](images/q4_profitability_over_time.png)
+### 3. Which customers or policy groups may represent elevated financial risk?
 
-> The data runs from May 2024 to May 2026, so the most recent quarter is partial. The drop in 2026 Q2 reflects incomplete data, not a real decline.
+Healthcare and Construction customers have the highest loss ratios (about 86%) and the most money tied up in open claims. Florida is the highest-risk state. The agent defines "elevated risk" as a high loss ratio, high open claim exposure, or both.
+
+![Elevated risk by industry and state](images/q3_elevated_risk.png)
+
+### 4. How can leadership monitor policy profitability and claims exposure over time?
+
+The agent proposes a monthly scorecard: loss ratio, adjusted loss ratio, open claim exposure (about $7.6M today), collection rate, and written premium (about $12.4M across 1,004 policies). It adds trends to review and a watchlist with warning thresholds.
+
+![Monitoring profitability and exposure over time](images/q4_profitability_over_time.png)
 
 ---
 
