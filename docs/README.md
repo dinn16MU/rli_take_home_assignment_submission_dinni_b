@@ -1,278 +1,302 @@
-# Plan: Insurance Policy Performance — Curated Analytics Layer on Snowflake
+# Insurance Policy Performance on Snowflake
 
-## 1. Context — the ask and the constraints
+A curated analytics layer that answers four questions about insurance policy performance: loss ratios by policy type, claims and payment trends, elevated financial risk, and profitability over time. Everything is built, scheduled and served inside Snowflake.
 
-**What the Product Analytics team needs:** a curated, trustworthy reporting layer that answers:
-1. Which policy types have the highest loss ratios?
-2. How do claims and payments trend across policy segments?
-3. Which customers or policy groups carry elevated financial risk?
-4. How can leadership track profitability and claims exposure over time?
-
-**Hard constraints from the README**
-- Must be built **in Snowflake** (a trial account is fine).
-- Raw data contains **intentional DQ issues**: duplicates, orphan FKs, missing values, negative amounts, invalid dates.
-- Must also show **production operations**: RBAC (engineer / analyst / service), warehouse configuration (auto-suspend/resume), cost control (resource monitor), grants, one sensitive-data protection example, and how to monitor, troubleshoot and deploy across environments.
-
-**Soft constraints:** perfection isn't expected; reviewers grade **judgment, tradeoffs and communication**. So: small, clean, explainable, and designed to scale. It doesn't need to be enterprise-complete.
-
-**Key definitions**
-- Tooling: dbt, developed locally with dbt Core and **deployed and scheduled inside Snowflake** (dbt Projects on Snowflake + a Snowflake Task). Code is pushed to GitHub once the pipeline is built.
-- Consumption through a **Snowflake semantic view**. Reporting front end: **Streamlit in Snowflake** (tentative). Because metrics live in the semantic view, the front end can change (Streamlit, CoWork, a BI tool) without changing the model.
-- `payments.csv` = **premium collected** from customers against their policies.
-- Loss ratio = **claims / premium**, as defined in the assignment. Its limitations are documented in §4.
-- Endorsement sign and out-of-term claims are judgment calls; the decisions and reasoning are in §4.
+The original assignment is in [ASSIGNMENT.md](ASSIGNMENT.md) and the source files are in [data/](data/).
 
 ---
 
-## 2. The data and its relationships
+## 1. My approach
 
+Coming into this assignment, I wanted to use the technologies that match the role and what RLI uses in its own Snowflake environment. That led me to a **dbt pipeline scheduled inside Snowflake**, a **semantic view** as the metric layer, and a **CoWork agent** as the reporting layer.
+
+**dbt.** The assignment asks for a scalable, maintainable solution that transforms raw data. dbt covers all three:
+- **Scalable:** the project grows cleanly as sources and people are added. Models are modular, `ref()` builds the dependency graph, and the same code builds dev or prod.
+- **Maintainable:** every model is version-controlled SQL with tests that run on every build. It fits a CI/CD workflow.
+- **Transformation:** the cleaning and business rules live in readable, reviewable SQL.
+
+**Snowflake.** Snowflake handles storage, compute, security and orchestration in one place. The pipeline runs as Snowflake tasks, so there is no outside scheduler to host or secure. It also integrates directly with Snowflake's AI features, which adds an intelligence layer on top of the data.
+
+**CoWork.** RLI's reporting stack uses CoWork and Cortex Agents, so I built the reporting layer there. What makes it especially useful here is that it's nimble. Instead of a static dashboard, users get an interactive environment where they can build their own reports, ask follow-up questions and query ad-hoc values when they need them.
+
+---
+
+## 2. How to run it
+
+Everything runs in Snowsight with a user that has **ACCOUNTADMIN** (a trial account works). Every setup script can be re-run safely.
+
+**Step 1: Open the repo in a Snowflake workspace.** First, allow Snowflake to read the public repo:
+
+```sql
+USE ROLE ACCOUNTADMIN;
+CREATE API INTEGRATION IF NOT EXISTS RLI_GITHUB_API
+  API_PROVIDER         = git_https_api
+  API_ALLOWED_PREFIXES = ('https://github.com/dinn16MU')
+  ENABLED              = TRUE;
 ```
-customers (352) 1───* policies (1,004) 1───* claims (425)
-                                       1───* payments (3,554)
-                                       1───* endorsements (50, JSON)
+
+Then go to **Projects → Workspaces → Create Workspace → From Git repository**:
+- Repository URL: `https://github.com/dinn16MU/rli_take_home_assignment_submission_dinni_b`
+- API integration: `RLI_GITHUB_API`
+- Authentication: Public repository
+
+**Step 2: Run the setup scripts `setup/01` to `06`, in order.** Open each one in the workspace and click **Run All**. Each script switches to the role it needs.
+
+| Script | What it creates |
+|---|---|
+| `01_roles_and_users.sql` | Roles, role hierarchy and the `DBT_SVC` service user |
+| `02_warehouses.sql` | The three warehouses |
+| `03_cost_controls.sql` | Resource monitors |
+| `04_db_and_schema_grants.sql` | Dev and prod databases, schemas and grants |
+| `05_stg_file_format_raw.sql` | File formats, the raw stage and the RAW tables |
+| `06_masking_policy.sql` | The masking policy for customer names |
+
+**Step 3: Upload the source files.** Download the 5 files from [docs/data](data/). In Snowsight, open **Database Explorer → PROD_RAW → INSURANCE → Stages → RAW_STAGE → + Files** and upload them.
+
+**Step 4: Deploy the dbt project.** In the workspace, switch the role to **SYSADMIN**, open any file in the `dbt/` folder, and choose **Connect → Deploy dbt project**:
+- Database `PROD_ANALYTICS`, schema `ORCHESTRATION`
+- Create a dbt project named exactly `INSURANCE_ANALYTICS`
+
+**Step 5: Schedule and run the pipeline.** Run `setup/07_schedule_pipeline.sql`. It creates the two scheduled tasks (daily at 6 AM Central) and starts one run right away. After a minute or two, both tasks show **Succeeded** under **Monitoring → Task History**.
+
+**Step 6: Publish the CoWork agent.** After the first run succeeds, run `setup/08_cowork_agent.sql`. Then open CoWork, choose **Policy Performance Analyst** and try one of its sample questions.
+
+> `08` turns on cross-region inference for US regions (`CORTEX_ENABLED_CROSS_REGION = 'AWS_US'`), so Cortex can use a model hosted in another US region if it isn't available locally. This is an account-level setting. Skip that line if your account already has the models it needs.
+
+**Step 7: Check the results.**
+
+```sql
+USE ROLE ANALYST;
+USE WAREHOUSE RLI_ANALYST_WH;
+
+-- Loss ratio by policy type, straight from the semantic view
+SELECT * FROM SEMANTIC_VIEW(
+    PROD_ANALYTICS.SEMANTIC.SV_POLICY_PERFORMANCE
+    DIMENSIONS policies.policy_type
+    METRICS policy_performance.loss_ratio, policy_performance.total_premium
+)
+ORDER BY loss_ratio DESC;
+
+-- Every raw claim is accounted for: 425 raw = 424 curated + 1 quarantined
+USE ROLE DEVELOPER;
+SELECT (SELECT COUNT(*) FROM PROD_RAW.INSURANCE.CLAIMS)              AS raw_claims,
+       (SELECT COUNT(*) FROM PROD_ANALYTICS.MARTS.FCT_CLAIMS)        AS curated_claims,
+       (SELECT COUNT(*) FROM PROD_ANALYTICS.DQ.DQ_QUARANTINE_CLAIMS) AS quarantined_claims;
 ```
-
-| Entity | Grain / PK | Key columns | Notes |
-|---|---|---|---|
-| customers | customer_id | customer_name, state (8), industry (5) | `customer_name` is the only identifying field, so it gets the masking example |
-| policies | policy_id | customer_id, policy_type (5), effective/expiration_date, premium | Central entity; everything else hangs off it |
-| claims | claim_id | policy_id, claim_date, claim_amount, claim_status (Open/Pending/Closed) | 345 of 1,004 policies have claims |
-| payments | payment_id | policy_id, payment_date, payment_amount | **Premium collected** from customers; links to the policy, not a claim |
-| endorsements | endorsement_id | policy_id, type (Increase/Reduction/Cancellation), date, amount | JSON array; premium adjustments (change in premium) |
-
-**Profiled data quality findings (actual counts).** The discovery file in step 3 reproduces these in Snowflake SQL.
-
-| Issue | Where | Detail | Handling |
-|---|---|---|---|
-| Duplicate PK + orphan FK | claims | `claim_id=1` appears twice; the 2nd copy points to `policy_id=999999` (doesn't exist) | Dedupe on PK, prefer the row with a valid FK; send the loser to quarantine |
-| Missing value | policies | `policy_id=6` has a null premium | Keep the policy and flag it; exclude it from loss-ratio denominators (**don't** impute 0) |
-| Invalid date relationship | policies | `policy_id=21` expires before it starts | Keep and flag `is_invalid_term` |
-| Negative amount | payments | `payment_id=11` = -500.00 | Keep and flag as a likely reversal/refund |
-| Sign vs type mismatch | endorsements | Signs split ~50/50 within every type (Increase 9+/7−, Reduction 10+/12−, Cancellation 8+/4−), so no single sign convention fits | Trust the **type**; derive the sign from it (see §4); keep the raw amount and flag `is_sign_mismatch` |
-| Claim before policy start | claims | 60 claims dated before the effective date | Keep and flag; **exclude from the loss ratio** (no coverage existed) |
-| Claim after policy end | claims | 118 claims dated after the expiration date | Keep and flag; **include** in the loss ratio (late reporting is normal) |
-| Payment outside term | payments | 458 before start, 1,126 after end | Keep and flag; advance payments and late installments are plausible |
-| Endorsement after policy end | endorsements | 30 dated after expiration | Keep and flag; exclude from adjusted premium (an expired policy can't be changed) |
-| Collections exceed premium | payments vs policies | 643 of 1,002 policies collected more than their premium (median 1.43×); policy length doesn't explain it | Report as-is with an `is_over_collected` flag; documented limitation, not "fixed" |
-
-All ID, date and number formats parse cleanly (ISO dates, numeric amounts).
 
 ---
 
 ## 3. Architecture
 
-```
-CSV / JSON ──upload──► internal stage ──dbt run-operation (COPY INTO)──► RAW ──► discovery SQL (profiling)
-                                                                           │
-                                                                          dbt
-                                                                           ▼
-                                   STAGING (typed, cleaned, flagged) ──► MARTS (star schema)
-                                          └──► DQ (quarantine + summary)        │
-                                                                                ▼
-                                                    SEMANTIC VIEW (metrics, dimensions, relationships, synonyms)
-                                                                                │
-                                                                                ▼
-                                                    Cortex Agent (Cortex Analyst tool) ──► Snowflake CoWork (business users)
+```mermaid
+flowchart LR
+    F["Source files"] -->|upload| S["RAW_STAGE"]
+    S -->|"T_LOAD_RAW"| R[("PROD_RAW<br/>as received")]
+    R -->|"T_DBT_BUILD"| ST["STAGING<br/>cleaned + flagged"]
+    ST --> Q["DQ<br/>quarantine"]
+    ST --> M["MARTS<br/>business model"]
+    M --> SV["SEMANTIC VIEW<br/>governed metrics"]
+    SV --> A["CoWork agent"]
 ```
 
-**Snowflake layout (one database per environment):** `RAW` and `ANALYTICS` per env → e.g. `DEV_RAW`, `DEV_ANALYTICS`, `PROD_RAW`, `PROD_ANALYTICS`.
-Schema in RAW: `INSURANCE` (named after the source system; holds the stage, file formats and raw tables).
-Schemas in ANALYTICS: `STAGING`, `MARTS`, `SEMANTIC` (semantic view + agent), `DQ`, `GOVERNANCE` (masking policies, kept apart from data so policy ownership can be separated later).
+The build starts with the source files being uploaded into an internal stage, `RAW_STAGE`. A Snowflake task, `T_LOAD_RAW`, runs the dbt `load_raw` macro, which uses `COPY INTO` to load each file into `PROD_RAW.INSURANCE`. Every field is kept exactly as received: every column is VARCHAR, and the JSON file lands in a single VARIANT column. That way a bad value can never fail a load. These are the uncleaned copies of the source files. Each row also carries three lineage columns: which file it came from, its position in that file, and when it was loaded.
 
-### Step 2 — Loading RAW (from the dbt project)
-- RAW tables, the internal stage and the file formats are created in platform setup. CSV format: header skip, `FIELD_OPTIONALLY_ENCLOSED_BY='"'` (customer names contain commas). JSON format: `STRIP_OUTER_ARRAY=TRUE`.
-- Files are uploaded to the stage (Snowsight upload or `snow stage copy`). A dbt macro then runs `COPY INTO` for each table: `dbt run-operation load_raw`.
-- RAW columns are **VARCHAR** (endorsements land in a `VARIANT`), plus `_file_name` and `_loaded_at`. Bad values never fail a load; typing happens in staging.
-- `COPY INTO` is idempotent: load history skips files already loaded.
+When the load finishes, a second task, `T_DBT_BUILD`, runs `dbt build`:
 
-### Step 3 — Data discovery
-`discovery/01_data_discovery.sql` (run as a Snowsight worksheet or Snowflake Notebook) profiles RAW: row counts, PK duplicates, orphan FKs, nulls, negative amounts, date-order checks, category values, out-of-term events. Its output is the evidence behind every cleanup rule in staging.
+- **Staging** (`PROD_ANALYTICS.STAGING`, views) cleans and flags the data. Types are cast safely, text is trimmed, and data quality issues get flag columns. There is no business logic yet.
+- **DQ** (`PROD_ANALYTICS.DQ`) holds the rows that can't be trusted at all, such as a duplicate claim pointing to a policy that doesn't exist. They're removed from staging so they can't distort the totals, but they're kept here with the reason, so nothing disappears without a trace.
+- **Marts** (`PROD_ANALYTICS.MARTS`, tables) are built from the staging views, with the business logic applied. There are customer and policy dimensions, claim and payment facts, and one row per policy with every input the loss ratio needs. They're tables because analysts and the agent query them repeatedly.
+- **Semantic view** (`SV_POLICY_PERFORMANCE`) defines the relationships between the mart tables, the dimensions to group by, and the metrics, such as the loss ratio. Each metric is defined once, with descriptions and synonyms, which gives the AI layer the context it needs to calculate things correctly.
 
-### Step 4 — Staging + cleanup (dbt)
-| Model group | Materialization | What it does |
-|---|---|---|
-| `stg_*` (one per source) | view | `TRY_CAST` types, trim, dedupe (`QUALIFY ROW_NUMBER()`), type-signed endorsement amount, single-table flags (missing premium, invalid term, negative payment, sign mismatch) |
-| `dq_*` | table | Quarantined rows (e.g. the duplicate claim) + a DQ summary (issue, row count, run time) |
+The final piece is the reporting layer: a CoWork agent that uses the semantic view as its context and gives business users analytics in a conversational, chat experience. It handles ad-hoc requests and calculations and adds context to its answers.
 
-Checks across tables (orphan FKs, out-of-term events) need the policy dates, so they're computed in the marts. An intermediate layer is added only if that logic grows.
-
-### Step 5 — Marts (star schema, dbt tables)
-- `dim_customer` (with a simple risk tier), `dim_policy` (with customer attributes and DQ flags), `dim_date`
-- `fct_claims` (grain: claim), `fct_payments` (grain: payment), `fct_endorsements` (grain: endorsement). Orphans map to an **unknown member (-1)**, so totals still reconcile.
-- **`fct_policy_performance` (grain: policy):** premium, adjusted premium, claims counted in the loss ratio, total claims, premium collected, open-claim amount. This is the **main table for the semantic view**. Premium lives at policy grain, so joining claims to policies would repeat the premium once per claim (fan-out) and inflate it. Pre-summing to policy grain means `SUM(premium)` and `SUM(claims)` are correct in any slice.
-
-### Step 6 — Semantic view (built by dbt)
-Built with the Snowflake Labs `dbt_semantic_view` package (`materialized='semantic_view'`), so it's versioned, tested and deployed with the rest of the project.
-- **Tables and relationships:** `fct_policy_performance`, `fct_claims`, `fct_payments` → `dim_policy` → `dim_customer`; `dim_date`.
-- **Dimensions:** policy type, state, industry, customer risk tier, effective month/year, claim status, claim month, payment month.
-- **Metrics (defined once, reused everywhere):**
-  - **Loss ratio** = `SUM(loss_ratio_claims) / SUM(premium)` (excludes pre-start claims and policies with a missing premium)
-  - Adjusted loss ratio, collection rate, outstanding premium, claim count, open-claim exposure, total premium, total claims
-- **Descriptions, synonyms** ("LR", "losses", "written premium") **and verified queries** for Q1–Q4, so Cortex Analyst answers consistently.
-
-### Step 7 — Reporting layer: Streamlit in Snowflake (tentative)
-- A Streamlit app that queries the semantic view, with pages for the four business questions: loss ratio by policy type, claims and premium-collected trends by segment, customer and policy-group risk, and portfolio profitability over time.
-- It runs inside Snowflake as `ANALYST`-level access, so masking and grants apply automatically.
-- The deploy pipeline goes Git → dbt project in Snowflake → a Snowflake Task scheduled as `SERVICE_ROLE`.
-
-**Optional add-on: Snowflake CoWork** (same semantic view, no model changes)
-- A **Cortex Agent** (`POLICY_PERFORMANCE_AGENT`) with one **Cortex Analyst tool** pointing at the semantic view, running on `ANALYTICS_WH`.
-- Agent instructions state the metric definitions and caveats: written premium, pre-start claims excluded, collections exceed premium.
-- Starter questions are the four business questions. Business users ask in plain English in CoWork; answers come back as charts and tables.
-- Governance is inherited: the `customer_name` masking policy and role grants apply to agent answers automatically.
-
-### Metric definitions (kept simple and documented)
-- **Loss ratio (primary KPI)** = `SUM(claim_amount) / SUM(premium)`. This is the assignment's definition.
-  - Claims: all statuses, deduplicated, excluding claims dated before the policy started (see §4).
-  - Premium: the policy's written premium; policies with a missing premium are excluded from the denominator.
-- **Adjusted loss ratio** (secondary) = claims / (premium + type-signed endorsement amounts).
-- **Collection rate** = `SUM(payment_amount) / SUM(premium)`: how much of the written premium was collected.
-- **Outstanding premium** = `GREATEST(premium − collected, 0)`. A high loss ratio *plus* unpaid premium = highest financial risk (Q3).
-- Earned premium and calendar-vs-policy-year views → deferred to the deeper discussion.
+**Environments.** There are two identical sets of databases: `DEV_RAW` / `DEV_ANALYTICS` and `PROD_RAW` / `PROD_ANALYTICS`, with the same schema names in each. The dbt target decides where a run goes: `dev` builds as DEVELOPER into the dev databases, and `prod` builds as SERVICE_ROLE into the prod databases. Dev databases are transient with 1 day of Time Travel, because they're cheap and can always be rebuilt. Prod keeps 7 days of Time Travel for recovery.
 
 ---
 
-## 4. Data quality policy: flag and quarantine, don't silently drop
+## 4. Business definitions
 
-- **Hard failures** (row can't be trusted at all: duplicate PK loser, unparseable key) → `DQ.quarantine_*` and excluded from marts.
-- **Soft issues** (could be legitimate: negative payment, out-of-term claim, missing premium) → kept, with a boolean `is_*` flag so analysts can filter.
-- dbt tests: `unique` and `not_null` on PKs, `relationships` for FKs, `accepted_values` for categories, plus custom tests (`expiration >= effective`, amount sign checks).
-  - Tests on **sources/RAW** are `severity: warn` (we know the source is dirty); tests on **staging outputs and marts** are `severity: error` (the cleaned layers must be clean).
-
-### Judgment calls
-
-**Endorsements: trust the type, not the sign.**
-- Standard convention: an endorsement amount is the change in premium. Coverage Increase = additional premium (+); Coverage Reduction and Cancellation = return premium (−).
-- Rule: `signed_amount = ABS(amount) × (+1 for Increase, −1 for Reduction/Cancellation)`. The raw amount is kept, with `is_sign_mismatch` set.
-- Why: the type is a deliberate business classification, while the sign is where entry/ETL errors happen (and the README calls out negative amounts as an intentional DQ issue). Trusting the sign would mean ~45% of coverage increases *lower* premium, which makes no business sense.
-- Impact is small: endorsements only feed the *adjusted* loss ratio, not the primary KPI.
-
-**Claims outside the policy term: exclude claims before the start, keep claims after the end.**
-- *Before effective date (60):* the policy didn't exist yet, so the loss can't belong to it. Kept in `fct_claims` with a flag, excluded from the loss ratio, and counted in the DQ summary.
-- *After expiration (118):* the data doesn't say whether `claim_date` is the loss date or the report date. Claims are often reported after a policy ends for a loss that happened during the term, so these are kept and flagged.
-- *Policy with an invalid term (policy 21):* no in/out-of-term check is possible; its claims are kept and flagged.
-
-**This choice materially moves the KPI, so the README shows the sensitivity:**
-
-| Claims included | Portfolio loss ratio |
+| Term | Definition |
 |---|---|
-| All claims | 0.88 |
-| **Excluding claims before the start (chosen)** | **0.77** |
-| Strictly in-term only | 0.52 |
+| **Loss ratio** | Claims divided by written premium. This is the main KPI. |
+| **Written premium** | The premium on each policy. Policy 6 has no premium, so it's left out of both sides of the loss ratio instead of being treated as zero. |
+| **Payments** | Premium collected from customers, not claim payouts. Collection rate = premium collected / written premium. |
+| **Adjusted loss ratio** | Claims divided by premium after endorsements |
+| **Open claim exposure** | The amount on Open and Pending claims |
 
-### Limitations of claims / premium (to document)
-- **Written, not earned premium.** Policies still in force look better than they will end up; earned premium is the industry standard for profitability.
-- **Claim amount basis unknown.** Open and Pending claims (~70%) may be reserves or estimates that will change, so the ratio is closer to "incurred" than "paid".
-- **No expenses.** A loss ratio isn't the full profitability picture (the combined ratio adds expenses).
-- **Collections don't reconcile to premium.** 643 of 1,002 policies collected more than their written premium, and term length doesn't explain it. Possible causes: overpayments, duplicate payments, or premium being a per-period figure. It's reported and flagged, not adjusted, and is a good follow-up question for the business.
+**Which claims count toward the loss ratio.** Claims dated **before** a policy started are excluded, because no coverage existed yet. Claims dated **after** a policy ended are included, because late reporting of a loss that happened during the term is a real cost.
+
+This rule changes the headline number a lot, so here are the alternatives:
+
+| Rule | Overall loss ratio |
+|---|---|
+| Count every claim | 0.87 |
+| **Exclude claims before the policy started (my choice)** | **0.76** |
+| Only count claims inside the policy term | 0.51 |
 
 ---
 
-## 5. Production operations in Snowflake
+## 5. Data quality decisions
 
-**RBAC (functional roles, rolled up to SYSADMIN)**
+My rule is simple: if a row can't be trusted at all, quarantine it; if it's unusual but could be real, keep it and flag it. I never drop or invent data silently.
+
+- **Duplicate and orphan records.** Claim 1 appears twice, and one copy points to a policy that doesn't exist (999999). That copy is removed from staging and kept in `DQ.DQ_QUARANTINE_CLAIMS` with the reason, so 425 raw claims = 424 curated + 1 quarantined.
+- **Missing values.** Policy 6 has no premium. The row is kept with an `is_missing_premium` flag and left out of the loss ratio.
+- **Invalid dates.** Policy 21 expires before it starts. It's kept and flagged as an invalid term (`is_invalid_term`).
+- **Negative amounts.** Payment 11 is -$500. It's kept, because it's most likely a refund or reversal, and flagged with `is_negative_amount`.
+- **Endorsement sign vs. type.** The sign of the amount doesn't match the type for 15 endorsements: 7 Coverage Increases are negative and 8 Cancellations are positive. The data is kept and the mismatches are flagged, and the type decides the sign. A Coverage Increase is always positive; a Coverage Reduction or Cancellation is always negative. Endorsements dated after a policy ended are ignored, because an expired policy can't be changed.
+- **Events outside the policy term.** 60 claims are dated before their policy started and 118 after it ended. Payments and endorsements show the same pattern. There are too many for these to be typos, so I kept the data and, instead of a true/false flag, labeled each claim and payment by when it happened: `before policy start`, `during policy`, `after policy end` or `invalid policy term`. The loss ratio rule in section 4 uses these labels.
+
+**Tests.** Every `dbt build` runs unique, not-null, relationship and accepted-value tests on the staging and mart models (`_staging.yml` and `_marts.yml`). If a test fails, everything downstream is skipped, so bad data never reaches the semantic view or CoWork.
+
+---
+
+## 6. Results
+
+<!-- Add CoWork screenshots to docs/images/ and update the file names below -->
+
+**1. Which policy types have the highest loss ratios?**
+
+| Policy type | Loss ratio | Written premium | Policies |
+|---|---|---|---|
+| Liability | 86.8% | $2.73M | 224 |
+| Auto | 78.7% | $2.36M | 194 |
+| Marine | 77.6% | $2.58M | 200 |
+| Property | 73.4% | $2.41M | 193 |
+| Workers Comp | 63.4% | $2.31M | 193 |
+
+![Loss ratio by policy type](images/q1_loss_ratio_by_policy_type.png)
+
+**2. How do claims and payments trend across policy segments?**
+
+![Claims and premium collected by policy type](images/q2_claims_and_payments_trend.png)
+
+**3. Which customers or policy groups may represent elevated financial risk?**
+
+![Elevated risk](images/q3_elevated_risk.png)
+
+**4. How can leadership monitor profitability and claims exposure over time?**
+
+![Profitability and exposure over time](images/q4_profitability_over_time.png)
+
+> The data runs from May 2024 to May 2026, so the most recent quarter is partial. The drop in 2026 Q2 reflects incomplete data, not a real decline.
+
+---
+
+## 7. Snowflake administration
+
+### Roles and users
+
+```
+SYSADMIN
+├── SERVICE_ROLE   ← DBT_SVC (service user)
+└── DEVELOPER
+    └── ANALYST
+```
+
+I used USERADMIN to create the roles and users, and SECURITYADMIN for grants. Every custom role rolls up to SYSADMIN, so admins can always see and manage what each role owns.
+
 | Role | Who | Access |
 |---|---|---|
-| `SERVICE_ROLE` | dbt / CI and the loader (service user `DBT_SVC`) | Owns ANALYTICS objects (incl. the semantic view); read/write RAW; uses LOAD_WH and TRANSFORM_WH |
-| `DEVELOPER` | Engineers | Full on DEV; read-only on PROD (changes ship via CI only); can run discovery on RAW; inherits ANALYST |
-| `ANALYST` | Product Analytics / business users | `SELECT` on `MARTS`, `DQ` and the semantic view; `USAGE` on the Cortex Agent; no RAW/STAGING; uses ANALYTICS_WH |
+| **SERVICE_ROLE** | The pipeline | The only role that can write to production. It loads RAW, builds and owns everything in `PROD_ANALYTICS`, applies the masking policy, and owns the scheduled tasks. |
+| **DEVELOPER** | Data engineers | Full access to dev (`DEV_RAW`, `DEV_ANALYTICS`). Read-only in prod. Inherits everything ANALYST can do. |
+| **ANALYST** | Product Analytics, leadership | Reads prod `MARTS`, `DQ` and the semantic view, and uses the CoWork agent. No access to RAW or staging. |
 
-Grants use `GRANT ... ON FUTURE TABLES/VIEWS IN SCHEMA`, so new dbt models get the right access automatically. The service user authenticates with key-pair auth, not a password.
+**Service role vs. service user.** SERVICE_ROLE is the set of permissions the pipeline gets, and pipelines never run under a person's account. Inside Snowflake, the scheduled tasks are owned by SERVICE_ROLE, so every run uses exactly its privileges, with no user or password involved. `DBT_SVC` is the login for running the pipeline from outside Snowflake, for example from a CI job. It's a `TYPE = SERVICE` user, so it can't log in with a password, uses key-pair authentication, and holds only SERVICE_ROLE.
 
-**Warehouses (separated by workload)**
-| Warehouse | Size | Auto-suspend | Why |
+**Grants.** Future grants are set on each schema, so new objects dbt creates are readable by the right roles straight away. Read access to the semantic view is granted by dbt itself at the end of each prod run, because the view only exists after the first build.
+
+### Warehouses
+
+I used SYSADMIN to create the warehouses and SECURITYADMIN for the usage and monitor grants. There's one warehouse per workload, so loads, transformations and analyst queries never compete for compute, and cost can be tracked by workload.
+
+| Warehouse | Used for | Auto-suspend | Statement timeout |
 |---|---|---|---|
-| `LOAD_WH` | XS | 60s | Short bursty COPY jobs; suspend fast |
-| `TRANSFORM_WH` | XS (raise to S if needed) | 60s | dbt runs are batch; no value in staying warm |
-| `ANALYTICS_WH` | XS, multi-cluster 1–2 (Enterprise) | 300s | Serves the agent's SQL and analysts; keeps the cache warm; scales out for concurrency, not up |
+| `RLI_LOAD_WH` | Loading files (short bursts) | 60 s | 10 min |
+| `RLI_DEV_WH` | dbt builds, both dev and scheduled prod | 60 s | 30 min |
+| `RLI_ANALYST_WH` | Analyst queries and CoWork | 300 s | 5 min |
 
-All warehouses: `AUTO_RESUME=TRUE`, `INITIALLY_SUSPENDED=TRUE`, plus `STATEMENT_TIMEOUT_IN_SECONDS` to stop runaway queries.
+- All three are extra-small, start suspended and **auto-resume** when a query arrives, so they cost nothing while idle.
+- The load and build warehouses **suspend after 60 seconds**, because batch work gains nothing from staying on.
+- The analyst warehouse stays on for **5 minutes**, so repeat questions reuse its cache. It has the **shortest statement timeout**, so a runaway or AI-generated query can't run for long.
+- The analyst warehouse is **multi-cluster (1 to 2)**. It scales out to handle more people at the same time, not to make one query faster.
+- `RLI_DEV_WH` is named for where it started, but it's the transformation warehouse for both environments.
+- DEVELOPER can use and monitor all three; SERVICE_ROLE uses the load and build warehouses; ANALYST uses only the analyst warehouse.
 
-**Cost control**
-- An account-level monthly resource monitor (notify at 75%, suspend at 100%, suspend immediately at 110%), plus a smaller monitor on ANALYTICS_WH.
-- Resource monitors only cover warehouses, so **Cortex/AI usage from CoWork is tracked with a Snowflake Budget**.
-- `QUERY_TAG` set per dbt model for cost attribution.
+### Cost controls
 
-**Sensitive data example:** a dynamic **masking policy** on `dim_customer.customer_name`, applied by a dbt post-hook so it survives table rebuilds. `DEVELOPER` and `SERVICE_ROLE` see the clear value; `ANALYST` sees a masked or hashed value, **including in CoWork answers**. (Extension: tag-based masking, row access policy by state.)
+I used ACCOUNTADMIN to set up two resource monitors:
 
-**Monitor / troubleshoot / deploy**
-- *Monitor:* dbt test results and `source freshness`; the DQ summary table; `ACCOUNT_USAGE` (`COPY_HISTORY`, `QUERY_HISTORY`, `WAREHOUSE_METERING_HISTORY`, Cortex usage views); Snowflake Alerts or email on failures and monitor thresholds.
-- *Troubleshoot:* find a failing model via its query tag → Query Profile; DQ quarantine tables show exactly which rows were rejected and why. For a wrong agent answer, inspect the SQL Cortex Analyst generated, then add a verified query or synonym to the semantic view.
-- *Deploy:* Git → PR → CI runs `dbt build` against an isolated CI schema (later: only modified models) → merge → prod job runs as `SERVICE_ROLE`. The semantic view deploys with dbt. Platform objects (roles, warehouses, monitors, the agent) live as versioned SQL scripts (Terraform later). Dev uses a **zero-copy clone** of PROD_RAW.
+| Monitor | Monthly limit | Notify | Suspend | Suspend immediately |
+|---|---|---|---|---|
+| `RM_ACCOUNT_MONTHLY` (whole account) | 50 credits | 75% | 100% | 110% |
+| `RM_ANALYTICS_WH` (analyst warehouse) | 20 credits | 75% | 100% | 110% |
+
+**Suspend** lets queries that are already running finish, while **suspend immediately** is the hard cap that cancels them. Resource monitors only cover warehouses, so I'd also recommend a Snowflake Budget for Cortex and CoWork usage.
+
+### Protecting sensitive data
+
+Customer names are protected with a dynamic masking policy. DEVELOPER and SERVICE_ROLE see the real names; ANALYST sees `CUST_` followed by a hash. The hash is always the same for the same name, so grouping and counting by customer still work. The policy is applied by dbt when `dim_customer` is built, so it's re-applied on every build and can't be forgotten. CoWork runs queries with the user's own role, so an analyst gets hashed names in CoWork and a developer sees real names.
+
+### Monitoring
+
+- **Pipeline:** Monitoring → Task History (or `INFORMATION_SCHEMA.TASK_HISTORY`) shows every run and any error. DEVELOPER can monitor the tasks but not change them.
+- **Data quality:** the dbt tests run on every build, and `DQ.DQ_QUARANTINE_CLAIMS` shows exactly which rows were rejected and why.
+- **Cost:** resource monitor alerts, plus `WAREHOUSE_METERING_HISTORY` for usage per warehouse.
+- **Access:** `QUERY_HISTORY` by role confirms that production objects are only ever built by SERVICE_ROLE.
+
+### Troubleshooting
+
+1. Task History shows which task failed (the load or the build) and the error message.
+2. The dbt run output shows which model or test failed.
+3. I reproduce the problem in dev using the same code: in the workspace, choose Profile dev, then Build.
+4. For a slow model, Query Profile shows where the time goes.
+5. If a bad build reaches prod, Time Travel (7 days) can restore the previous data.
+
+### Deploying across environments
+
+```
+Develop and test in dev (DEVELOPER, DEV_ANALYTICS)
+  → push to GitHub
+  → pull in the workspace and redeploy the dbt project
+  → the next scheduled run builds prod as SERVICE_ROLE
+```
+
+Engineers can't write to prod, so a deploy is the only way a change reaches production. The platform setup (roles, warehouses, grants, policies, tasks and the agent) is versioned as SQL in `setup/`.
 
 ---
 
-## 6. Key decisions and why not the alternatives
+## 8. Alternatives I considered
 
-| Decision | Chosen | Not chosen and why |
+| Decision | What I chose | What I didn't, and why |
 |---|---|---|
-| Transformation tool | **dbt, developed locally, deployed and scheduled as a dbt project in Snowflake** | *Snowflake-native SQL/Tasks only:* weaker testing, docs, lineage and env promotion. *External orchestrator (Airflow, dbt Cloud):* another platform to run, secure and pay for. Running inside Snowflake keeps scheduling, logs, permissions and cost in one place |
-| Loading RAW | **Stage + `COPY INTO`, triggered by `dbt run-operation`** | *dbt seeds:* CSV only (can't load `endorsements.json`), infer types (dirty values can break the load or be typed wrong), and are meant for small static reference data, not source data |
-| Layering | **RAW → staging (with cleanup) → marts → semantic view** | *Transform straight into marts:* no replayable raw copy and harder debugging. *Separate intermediate layer:* not needed at this size |
-| Bad data | **Flag and quarantine** | *Drop rows:* hides problems and distorts totals (e.g. ~40% of claims are out of term). *Fix in place:* invents data, e.g. a zero premium would break loss ratios |
-| Endorsement sign | **Derive from type** | *Trust the sign:* ~45% of coverage increases would lower premium. *Drop mismatches:* loses ~half the endorsements |
-| Out-of-term claims | **Exclude only claims before the start** | *Keep all:* counts losses with no coverage. *In-term only:* drops 118 likely late-reported claims and understates losses (0.52 vs 0.77) |
-| RAW typing | **VARCHAR/VARIANT, cast in staging** | *Strict types at load:* one bad value fails the whole file |
-| Modeling | **Star schema + policy-grain performance fact** | *Pre-aggregated reporting marts per question:* the semantic view now does slicing and aggregation, so per-question tables would duplicate metric logic. *One Big Table:* fan-out risk and no reuse. *Data Vault:* overkill for 5 sources |
-| Metric layer | **Snowflake semantic view** | *Metrics in a BI tool:* locked to that tool and invisible to Cortex. *Metrics hard-coded in mart columns:* can't be re-sliced, and every new question needs a new table |
-| Reporting front end (tentative) | **Streamlit in Snowflake, reading the semantic view** | *CoWork agent:* strong for open-ended questions; an easy add-on on the same semantic view if time allows. *External BI tool:* another licence and another place to manage access. *Snowsight dashboard:* quick, but limited layout and interactivity |
-| Ingestion at scale | **Batch `COPY INTO` now** | *Snowpipe / external stage on S3:* the right next step for continuous files, unnecessary for a one-time batch |
-| Environments | **Database per env, one account** | *Account per env:* stronger isolation but too much overhead for this scope (worth mentioning for regulated prod) |
-| Warehouses | **Separate per workload** | *One shared warehouse:* BI and ETL compete for compute and cost can't be attributed |
-| PII protection | **Dynamic masking policy** | *Secure views / split PII table:* more objects to maintain, easy to bypass if someone is granted the base table, and wouldn't carry through to CoWork answers as cleanly |
-| Mart materialization | **Tables (full refresh)** | *Incremental:* unnecessary at ~5k rows; the facts are designed so switching to incremental on `_loaded_at` is a config change |
+| Reporting | CoWork agent on the semantic view | **Streamlit dashboard:** consistent, but it only shows the views someone built in advance. CoWork handles follow-up questions and draws charts, and masking follows each user's role automatically. |
+| Orchestration | Snowflake tasks | **Airflow or dbt Cloud:** better for many pipelines across different systems, but one more system to run and secure for a pipeline that lives entirely in Snowflake. |
+| Bad data | Quarantine or flag | **Dropping rows** hides problems and distorts totals (178 claims fall outside their policy term). **Fixing values** invents data. |
+| RAW tables | Everything as VARCHAR | **Strict types at load:** one bad value would fail the whole file. |
+| Metrics | Semantic view | **Metrics in each report:** everyone re-creates the loss ratio and some get it wrong. The semantic view defines it once for people and AI. |
+| Sensitive data | Masking policy | **Secure views or a separate PII table:** more objects to maintain, and easy to get around if someone is granted the base table. |
+| Environments | Database pairs in one account | **One account per environment:** stronger isolation, but too much overhead for this scope. |
+| Warehouses | One per workload | **One shared warehouse:** loads, builds and analysts compete for compute, and cost can't be split by workload. |
 
 ---
 
-## 7. Implementation steps (in order)
+## 9. Next steps
 
-```
-repo/
-├─ README.md                    # design doc: decisions, assumptions, DQ findings, how to run
-├─ platform/                    # run once as ACCOUNTADMIN/SYSADMIN, in order
-│  ├─ 01_roles_and_users.sql
-│  ├─ 02_warehouses.sql
-│  ├─ 03_cost_controls.sql       # resource monitors + budget
-│  ├─ 04_databases_schemas_grants.sql
-│  ├─ 05_stage_file_formats_raw_tables.sql
-│  ├─ 06_masking_policy.sql      # policy object; applied by a dbt post-hook
-│  └─ 07_cortex_agent.sql        # agent + grants (after the semantic view exists)
-├─ discovery/
-│  └─ 01_data_discovery.sql      # profiling queries against RAW
-└─ dbt/
-   ├─ dbt_project.yml, profiles.yml (dev/prod targets), packages.yml (dbt_semantic_view)
-   ├─ macros/load_raw.sql        # COPY INTO for each RAW table
-   ├─ models/staging/            # sources.yml + stg_*.sql + tests
-   ├─ models/dq/                 # quarantine + DQ summary
-   ├─ models/marts/              # dims, facts, fct_policy_performance, schema.yml with docs + tests
-   ├─ models/semantic/           # semantic view model
-   ├─ tests/                     # custom singular tests
-   └─ analyses/                  # SQL answering Q1–Q4 (used to check agent answers)
-```
-
-1. **Snowflake setup:** roles, warehouses, cost controls, databases/schemas, future grants, stage, file formats, RAW tables, masking policy.
-2. **Load RAW from dbt:** upload files to the stage → `dbt run-operation load_raw`; check row counts against the source files.
-3. **Data discovery:** run `discovery/01_data_discovery.sql`; confirm it reproduces the §2 findings.
-4. **Staging + cleanup:** `stg_*` models, quarantine and DQ summary, tests.
-5. **Marts:** dims, facts, `fct_policy_performance`; masking post-hook; error-level tests.
-6. **Semantic view:** dimensions, metrics, relationships, synonyms, verified queries for Q1–Q4.
-7. **CoWork:** create the Cortex Agent on the semantic view, grant it to `ANALYST`, and test Q1–Q4.
-8. **Write-up:** README with decisions, assumptions, DQ findings, loss-ratio sensitivity and the ops narrative.
+- Load files automatically from an external stage (S3) with Snowpipe, instead of uploading them by hand.
+- Add CI: build and test every pull request as `DBT_SVC`, and deploy on merge.
+- Add tests on the RAW sources and a freshness check, so a missed load is caught.
+- Carry the endorsement `is_sign_mismatch` flag through to the marts so analysts can see it.
+- Track policy changes over time with dbt snapshots.
+- Add verified answers for the four core questions to the semantic view, and check the agent against them.
 
 ---
 
-## 8. Verification
+## 10. The role of AI
 
-- **Load:** RAW row counts match the files (claims 425, customers 352, payments 3,554, policies 1,004, endorsements 50).
-- **Discovery:** discovery SQL reproduces the §2 counts.
-- **dbt:** `dbt build` passes; source warnings match the known DQ issues; staging and mart tests are green.
-- **Reconciliation:** raw count = curated count + quarantined count per entity (claims 425 = 424 + 1). Premium and claim totals match between RAW and marts.
-- **Metrics:** a direct `SEMANTIC_VIEW(...)` query returns the same portfolio loss ratio as the `analyses/` SQL (**0.77**), and the same results by policy type.
-- **CoWork:** as `ANALYST`, ask Q1–Q4. Answers match the `analyses/` results, and customer names come back masked.
-- **Security:** `USE ROLE ANALYST` → selecting from RAW/STAGING is denied. `USE ROLE DEVELOPER` → names visible.
-- **Ops:** `SHOW WAREHOUSES` (auto-suspend/resume values), `SHOW RESOURCE MONITORS`, `SHOW GRANTS TO ROLE ...`.
+I made the decisions on approach, architecture, data quality and business rules. AI was my pair programmer for building them out. I used it throughout the project:
 
----
-
-## 9. Deferred to the deeper technical discussion
-Earned vs written premium and calendar vs policy-year loss ratios; SCD2 snapshots for policy changes; incremental and Snowpipe ingestion at scale; access-role (database role) layering for RBAC; tag-based masking and row access policies; Terraform/CI details; evaluating and tuning agent answers (verified-query coverage); adding Cortex Search for unstructured documents such as policy forms or claim notes; why collections exceed written premium.
+- **Learning the domain.** Insurance isn't my specialty, so I first used AI to learn the concepts and terminology: what the metrics mean and what decisions they drive.
+- **Exploring the data.** With that understanding, I explored the data and found the issues that needed to be addressed.
+- **Building.** I made the major decisions on architecture and data policies, and AI built out my plan.
+- **Troubleshooting.** It helped me work through the problems I ran into while getting the pipeline running in Snowflake.
