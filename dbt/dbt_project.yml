@@ -7,7 +7,14 @@ model-paths: ["models"]
 macro-paths: ["macros"]
 test-paths: ["tests"]
 analysis-paths: ["analyses"]
-clean-targets: ["target", "dbt_packages"]
+# dbt_packages is committed (Snowflake has no internet for dbt deps), so dbt clean must not delete it
+clean-targets: ["target"]
+
+# Read access to the semantic view in prod. Granted here because the semantic_view
+# materialization does not run model hooks. copy_grants keeps it across rebuilds.
+on-run-end:
+  - "{% if target.name == 'prod' %}grant select on semantic view {{ target.database }}.semantic.sv_policy_performance to role analyst{% else %}select 1{% endif %}"
+  - "{% if target.name == 'prod' %}grant select on semantic view {{ target.database }}.semantic.sv_policy_performance to role developer{% else %}select 1{% endif %}"
 
 models:
   insurance_analytics:

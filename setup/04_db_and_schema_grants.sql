@@ -31,6 +31,8 @@ CREATE SCHEMA IF NOT EXISTS PROD_ANALYTICS.MARTS;
 CREATE SCHEMA IF NOT EXISTS PROD_ANALYTICS.SEMANTIC;
 CREATE SCHEMA IF NOT EXISTS PROD_ANALYTICS.DQ;
 CREATE SCHEMA IF NOT EXISTS PROD_ANALYTICS.GOVERNANCE;
+-- Pipeline objects: deployed dbt project + scheduled tasks (no analyst access)
+CREATE SCHEMA IF NOT EXISTS PROD_ANALYTICS.ORCHESTRATION;
 
 -- ANALYTICS schemas: dev (schemas in a transient database are transient too)
 CREATE SCHEMA IF NOT EXISTS DEV_ANALYTICS.STAGING;
@@ -52,8 +54,8 @@ CREATE SCHEMA IF NOT EXISTS DEV_ANALYTICS.GOVERNANCE;
 --   schema has any schema-level future grants, Snowflake ignores
 --   database-level future grants for that schema, so mixing the two
 --   would silently drop access in MARTS and DQ.
--- * No future grant for semantic views yet: SELECT on the semantic view
---   is granted directly in the agent script once it exists.
+-- * SELECT on the semantic view is granted by dbt itself (on-run-end hook
+--   in dbt_project.yml), because the view only exists after the first build.
 -- ---------------------------------------------------------------------
 USE ROLE SECURITYADMIN;
 
@@ -74,6 +76,8 @@ GRANT USAGE, CREATE TABLE, CREATE VIEW ON SCHEMA PROD_ANALYTICS.DQ       TO ROLE
 GRANT USAGE, CREATE SEMANTIC VIEW      ON SCHEMA PROD_ANALYTICS.SEMANTIC TO ROLE SERVICE_ROLE;
 -- Needed to reference (apply) the masking policy stored in GOVERNANCE
 GRANT USAGE ON SCHEMA PROD_ANALYTICS.GOVERNANCE TO ROLE SERVICE_ROLE;
+-- Owns the scheduled tasks (setup/07)
+GRANT USAGE, CREATE TASK ON SCHEMA PROD_ANALYTICS.ORCHESTRATION TO ROLE SERVICE_ROLE;
 
 
 -- Dev databases: none (dev runs as engineers)
@@ -123,12 +127,12 @@ GRANT SELECT ON FUTURE TABLES IN SCHEMA PROD_ANALYTICS.GOVERNANCE TO ROLE DEVELO
 GRANT SELECT ON ALL VIEWS     IN SCHEMA PROD_ANALYTICS.GOVERNANCE TO ROLE DEVELOPER;
 GRANT SELECT ON FUTURE VIEWS  IN SCHEMA PROD_ANALYTICS.GOVERNANCE TO ROLE DEVELOPER;
 
+-- ORCHESTRATION: see task runs and errors for troubleshooting (can't change them)
+GRANT MONITOR ON FUTURE TASKS IN SCHEMA PROD_ANALYTICS.ORCHESTRATION TO ROLE DEVELOPER;
+
 -- Dev databases: create personal dev schemas for dbt
 GRANT USAGE, CREATE SCHEMA ON DATABASE DEV_RAW       TO ROLE DEVELOPER;
 GRANT USAGE, CREATE SCHEMA ON DATABASE DEV_ANALYTICS TO ROLE DEVELOPER;
-
--- Dev: full access on DEV_RAW.INSURANCE
-
 
 -- Dev: full access on DEV_RAW.INSURANCE
 GRANT ALL ON SCHEMA DEV_RAW.INSURANCE                     TO ROLE DEVELOPER;
@@ -159,6 +163,15 @@ GRANT SELECT ON ALL TABLES    IN SCHEMA PROD_ANALYTICS.DQ    TO ROLE ANALYST;
 GRANT SELECT ON FUTURE TABLES IN SCHEMA PROD_ANALYTICS.DQ    TO ROLE ANALYST;
 GRANT SELECT ON ALL VIEWS     IN SCHEMA PROD_ANALYTICS.DQ    TO ROLE ANALYST;
 GRANT SELECT ON FUTURE VIEWS  IN SCHEMA PROD_ANALYTICS.DQ    TO ROLE ANALYST;
+
+-- SEMANTIC: USAGE above; SELECT on the semantic view comes from dbt (see PART 2 notes)
+
+
+-- ---------------------------------------------------------------------
+-- PART 3: Account-level privilege to run tasks (ACCOUNTADMIN only)
+-- ---------------------------------------------------------------------
+USE ROLE ACCOUNTADMIN;
+GRANT EXECUTE TASK ON ACCOUNT TO ROLE SERVICE_ROLE;
 
 
 -- ---------------------------------------------------------------------
